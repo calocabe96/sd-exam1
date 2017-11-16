@@ -1,0 +1,77 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+  config.vbguest.auto_update = false
+  config.vm.define :elastic do |es|
+    es.vm.box = "centos1706_v0.2.0"
+    es.vm.hostname = "kratos"
+    #es.vm.network "public_network", bridge: "eno1", ip:"192.168.0.29"
+    es.vm.network "private_network", ip: "192.168.133.12"
+    es.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "centos_elastic" ]
+    end
+
+  es.vm.provision :chef_solo do |chef|
+    chef.install = false
+    chef.cookbooks_path = "cookbooks"
+    chef.add_recipe "elastic"
+  end
+ 
+end
+
+  config.vm.define :log do |log|
+    log.vm.box = "centos1706_v0.2.0"
+    log.vm.hostname = "venus"
+    log.vm.network "private_network", ip: "192.168.133.13"
+    log.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "centos_logstash" ]
+    end
+
+  log.vm.provision :chef_solo do |chef|
+    chef.install = false
+    chef.cookbooks_path = "cookbooks"
+    chef.add_recipe "logstash"
+  end
+ 
+end
+
+  config.vm.define :kibana do |kiba|
+    kiba.vm.box = "centos1706_v0.2.0"
+    kiba.vm.hostname = "zeus"
+    kiba.vm.network "private_network", ip: "192.168.133.14"
+    kiba.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "centos_kibana" ]
+    end
+
+  kiba.vm.provision :chef_solo do |chef|
+    chef.install = false
+    chef.cookbooks_path = "cookbooks"
+    chef.add_recipe "kibana"
+  end
+ 
+end
+
+  config.vm.define :filebeat do |file|
+    file.vm.box = "centos1706_v0.2.0"
+    file.vm.hostname = "terminator"
+    file.vm.network "private_network", ip: "192.168.133.15"
+    file.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "centos_file_beat" ]
+    end
+
+  file.vm.provision :chef_solo do |chef|
+    chef.install = false
+    chef.cookbooks_path = "cookbooks"
+    chef.add_recipe "filebeat"
+  end
+ 
+end
+
+
+
+
+end
